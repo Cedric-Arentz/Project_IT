@@ -127,46 +127,13 @@ public class BasicGame implements GameLoop {
             }
             if (new Rectangle(700,750,90,40).contains(mouseEvent.getX(),mouseEvent.getY()))
             {
-                /*if (currentCookies >= cursorCost)
+                if (currentCookies >= cursorCost)
                 {
                     currentCookies-=cursorCost;
                     cookiesPerSecond = cookiesPerSecond + 0.1;
-                }*/
-                SaveData();
+                }
+
             }
-        }
-    }
-    public void LoadData(){
-        JSONParser jsonParser = new JSONParser();
-        try(FileReader reader = new FileReader("SaveFile.json")){
-            Object obj = jsonParser.parse(reader);
-
-            JSONArray SaveFileList = (JSONArray) obj;
-            System.out.println(SaveFileList);
-        }
-
-        catch (FileNotFoundException e){
-            e.printStackTrace();
-        }
-        catch (IOException e){
-            e.printStackTrace();
-        }
-        catch (ParseException e){
-            e.printStackTrace();
-        }
-    }
-    @SuppressWarnings("unchecked")
-    public void SaveData(){
-        JSONObject saveFile = new JSONObject();
-        saveFile.put("currentCookies", currentCookies);
-        saveFile.put("cookiesPerSecond", cookiesPerSecond);
-
-        try(FileWriter file = new FileWriter("SaveFile.json")) {
-            file.write(saveFile.toJSONString());
-            file.flush();
-        }
-        catch (IOException e){
-            e.printStackTrace();
         }
     }
 }
