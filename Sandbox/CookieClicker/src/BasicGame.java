@@ -15,15 +15,21 @@ public class BasicGame implements GameLoop {
         SaxionApp.startGameLoop(new BasicGame(), 750, 750, 20);
     }
 
+    enum Screen {
+        Start,
+        Game,
+        Shop,
+        Settings
+    }
+    Screen currentScreen = Screen.Start;
     MainCookie mainCookie;
     double currentCookies;
     int cookiesPerClick;
     double cookiesPerSecond;
-    int cursorCost;
     int timer;
     List<Building> buildings = Building.SetBuildingList();
     boolean showShop = false;
-    int selectedBuilding = 1;
+    int selectedBuilding = 0;
 
     @Override
     public void init() {
@@ -33,8 +39,6 @@ public class BasicGame implements GameLoop {
         cookiesPerClick = 1;
 
         timer = 0;
-
-        cursorCost = 15;
 
         //initialize main cookie
         mainCookie = new MainCookie();
@@ -55,17 +59,19 @@ public class BasicGame implements GameLoop {
     @Override
     public void loop() {
         SaxionApp.clear();
-        DrawMainScreen();
-        if (showShop)
-        {
-            DrawShopInterface();
+
+        switch (currentScreen){
+            case Start -> currentScreen = Screen.Game;
+            case Shop -> DrawShopInterface();
+            case Game -> DrawMainScreen();
+            case Settings -> {}
         }
 
 
         timer+=20;
         if (timer>=1000)
         {
-            UpdateCookieCount();
+            UpdateCookieCount(cookiesPerSecond);
             timer = 0;
         }
 
@@ -79,11 +85,11 @@ public class BasicGame implements GameLoop {
 
     private void DrawMainScreen() {
         //background and game elements
-        SaxionApp.drawImage("Sandbox/CookieClicker/background.jpg", 0, 0, 1000, 1000);
+        SaxionApp.drawImage("Sandbox/CookieClicker/background.jpg", 0, 0, SaxionApp.getWidth(),SaxionApp.getHeight());
         SaxionApp.drawImage("Sandbox/CookieClicker/ShopButton.png", SaxionApp.getWidth()-100,SaxionApp.getHeight()-50,90,40);
 
         //Cookie counter
-        SaxionApp.setFill(Color.black);
+        SaxionApp.setFill(new Color(0,0,0,200));
         SaxionApp.drawRectangle(0,SaxionApp.getHeight() / 5,1000,75);
         SaxionApp.drawText(FormatAmount(currentCookies) + " cookies", SaxionApp.getWidth()/2-50, SaxionApp.getHeight() / 5 + 15, 28);
         SaxionApp.drawText(FormatAmount(cookiesPerSecond) + " cookies per second", SaxionApp.getWidth()/2-60, SaxionApp.getHeight() / 5 + 40, 24);
@@ -105,14 +111,22 @@ public class BasicGame implements GameLoop {
         //draw detailed screen
         SaxionApp.setFill(Color.blue);
         SaxionApp.drawRectangle(10,40,SaxionApp.getWidth()-20,SaxionApp.getHeight()/4);
-        SaxionApp.drawText(buildings.get(selectedBuilding).name, SaxionApp.getWidth()/2-40,45,24);
+        //Image
+        SaxionApp.setFill(Color.cyan);
+        SaxionApp.drawRectangle(40,70,120,120);
+        //Name
+        SaxionApp.drawText(buildings.get(selectedBuilding).name, SaxionApp.getWidth()/2-50,45,30);
+        //Description
+        SaxionApp.drawText(buildings.get(selectedBuilding).description, 210,120,24);
+        //Production info
+        SaxionApp.drawText("Produces " + buildings.get(selectedBuilding).baseProduction + " cookies per second", 210,160,14);
 
 
         //draw buildings
         int xPos;
         int yPos  = SaxionApp.getWidth() / 4 + 20;
         for (int i = 0; i < buildings.size(); i++) {
-            if (buildings.get(i).cost <= currentCookies)
+            if (buildings.get(i).baseCost <= currentCookies)
             {
                 SaxionApp.setFill(Color.green);
             }else{
@@ -158,48 +172,64 @@ public class BasicGame implements GameLoop {
         }
     }
 
-    private void UpdateCookieCount() {
-        currentCookies+=cookiesPerSecond;
+    private void UpdateCookieCount(double amount) {
+        currentCookies+=amount;
     }
 
     @Override
     public void keyboardEvent(KeyboardEvent keyboardEvent) {
-        //Resize test, Keyboard- en mouseEvents werken niet na resize
-        //if (keyboardEvent.getKeyCode() == KeyboardEvent.VK_1)
-        //{
-        //    SaxionApp.resize(750,750);
-        //}
-        //if (keyboardEvent.getKeyCode() == KeyboardEvent.VK_2)
-        //{
-        //    SaxionApp.resize(1000,1000);
-        //}
+        switch (currentScreen){
+            case Shop -> {
+                if (keyboardEvent.getKeyCode() == KeyboardEvent.VK_ESCAPE)
+                {
+                    //leave shop menu with Escape Key
+                    currentScreen = Screen.Game;
+                }
+            }
+        }
 
     }
 
     @Override
     public void mouseEvent(MouseEvent mouseEvent) {
-        if (mouseEvent.isMouseDown() & mouseEvent.isLeftMouseButton())
+        switch (currentScreen)
         {
-            if (mainCookie.boundingCircle.contains(mouseEvent.getX(),mouseEvent.getY()))
-            {
-                currentCookies+=cookiesPerClick;
-                mainCookie.clickCount+=1;
+            case Game -> {
+                if (mouseEvent.isMouseDown() & mouseEvent.isLeftMouseButton())
+                {
+                    if (mainCookie.boundingCircle.contains(mouseEvent.getX(),mouseEvent.getY()))
+                    {
+                        currentCookies+=cookiesPerClick;
+                        mainCookie.clickCount+=1;
+                    }
+                    if (new Rectangle(SaxionApp.getWidth()-100,SaxionApp.getHeight()-50,90,40).contains(mouseEvent.getX(),mouseEvent.getY()))
+                    {
+                        currentScreen = Screen.Shop;
+                    }
+                }
             }
-            if (new Rectangle(SaxionApp.getWidth()-100,SaxionApp.getHeight()-50,90,40).contains(mouseEvent.getX(),mouseEvent.getY()))
-            {
-                //if (currentCookies >= cursorCost)
-                //{
-                //    currentCookies-=cursorCost;
-                //    cookiesPerSecond = cookiesPerSecond + 0.1;
-                //}
-                showShop = !showShop;
-            }
-            if (showShop)
-            {
-                //shopEvent(MouseEvent mouseEvent);
-            }
-
+            case Shop -> shopMouseEvent(mouseEvent);
         }
+    }
+
+    private void shopMouseEvent(MouseEvent mouseEvent) {
+        //this for-loop checks for each building if it has been clicked
+        int xPos;
+        int yPos  = SaxionApp.getWidth() / 4 + 20;
+        for (int i = 0; i < buildings.size(); i++) {
+            if (i % 2 == 0){
+                xPos = SaxionApp.getWidth() / 2 - 200;
+                yPos += 60;
+            }else {
+                xPos = SaxionApp.getWidth() / 2 + 10;
+            }
+            Rectangle currentRectangle = new Rectangle(xPos, yPos, 200, 50);
+            if (currentRectangle.contains(mouseEvent.getX(),mouseEvent.getY()))
+            {
+                selectedBuilding = i;
+            }
+        }
+
     }
 }
 
