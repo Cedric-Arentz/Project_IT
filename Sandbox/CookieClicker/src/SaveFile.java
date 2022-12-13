@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -19,35 +20,48 @@ import org.json.simple.parser.ParseException;
 
 public class SaveFile {
     public void LoadData(){
-        JSONParser jsonParser = new JSONParser();
-        try(FileReader reader = new FileReader("SaveFile.json")){
-            Object obj = jsonParser.parse(reader);
 
-            JSONArray SaveFileList = (JSONArray) obj;
-            System.out.println(SaveFileList);
-        }
+        JSONParser parser = new JSONParser();
 
-        catch (FileNotFoundException e){
-            e.printStackTrace();
-        }
-        catch (IOException e){
-            e.printStackTrace();
-        }
-        catch (ParseException e){
+        try{
+
+            Object obj = parser.parse(new FileReader("SaveFile.json"));
+            JSONObject jsonObject = (JSONObject)obj;
+
+            long clickCount = (long) jsonObject.get("clickCount");
+            double currentCookies = (double)jsonObject.get("currentCookies");
+            JSONArray buildings =(JSONArray)jsonObject.get("buildingAmounts");
+            MainCookie cookie = new MainCookie();
+            BasicGame game = new BasicGame();
+            cookie.clickCount = (int) clickCount;
+            game.currentCookies = currentCookies;
+
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
 
+
     @SuppressWarnings("unchecked")
-    public void SaveData(BasicGame basicGame){
+    public void SaveData(double currentCookies, MainCookie mainCookie){
+
         JSONObject saveFile = new JSONObject();
-        saveFile.put("currentCookies", basicGame.currentCookies);
-        saveFile.put("cookiesPerSecond", basicGame.cookiesPerSecond);
+        List<Integer> amounts = new ArrayList<>();
+
+        for (int i = 0; i < Building.SetBuildingList().size();i++) {
+            amounts.add(Building.SetBuildingList().get(i).amount);
+        }
+
+        saveFile.put("buildingAmounts",amounts);
+        saveFile.put("currentCookies", currentCookies);
+        saveFile.put("clickCount", mainCookie.clickCount);
+        //saveFile.put("upgradeCount", upgradeCount);
 
         try(FileWriter file = new FileWriter("SaveFile.json")) {
             file.write(saveFile.toJSONString());
             file.flush();
         }
+
         catch (IOException e){
             e.printStackTrace();
         }

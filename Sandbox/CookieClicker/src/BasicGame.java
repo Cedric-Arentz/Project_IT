@@ -1,3 +1,4 @@
+import com.sun.tools.javac.Main;
 import nl.saxion.app.SaxionApp;
 import nl.saxion.app.interaction.GameLoop;
 import nl.saxion.app.interaction.KeyboardEvent;
@@ -127,12 +128,14 @@ public class BasicGame implements GameLoop {
             }
             if (new Rectangle(700,750,90,40).contains(mouseEvent.getX(),mouseEvent.getY()))
             {
-                if (currentCookies >= cursorCost)
+                /*if (currentCookies >= cursorCost)
                 {
                     currentCookies-=cursorCost;
                     cookiesPerSecond = cookiesPerSecond + 0.1;
-                }
-
+                }*/
+                SaveFile saveFile = new SaveFile();
+                //saveFile.SaveData(currentCookies, mainCookie);
+                saveFile.LoadData();
             }
         }
     }
