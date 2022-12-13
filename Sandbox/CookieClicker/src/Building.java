@@ -8,7 +8,6 @@ public class Building {
     int baseCost;
     double baseProduction;
     int amount;
-    int cost = baseCost + (this.amount^2 * this.baseCost);
 
     public Building (String name, String description, String fileName, int baseCost, double baseProduction)
     {
@@ -19,18 +18,27 @@ public class Building {
         this.baseProduction = baseProduction;
     }
 
-    //public int GetPrice(int buyAmount){
-    //    int cost;
-    //    if (buyAmount > 2){
-    //
-    //    }
-    //}
+    public int getPrice(int buyAmount){
+        double cost;
+        if (this.amount < 1){
+            cost = this.baseCost;
+        } else if (buyAmount == 1) {
+            cost = Math.round(baseCost * Math.pow(1.15,amount));
+        }else
+        {
+            cost = 0;
+            for (int i = 0; i < buyAmount; i++) {
+                cost += Math.round(baseCost * Math.pow(1.15,amount+i));
+            }
+        }
+        return (int) cost;
+    }
 
 
 
 
 
-    public static List<Building> SetBuildingList()
+    public static List<Building> setBuildingList()
     {
         List<Building> buildings = new ArrayList<>();
         buildings.add(new Building("Cursor","Auto-clicks every 10 seconds","Sandbox/BasicGame/cursor.png",15, 0.1));
