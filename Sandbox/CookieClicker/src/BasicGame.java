@@ -27,8 +27,7 @@ public class BasicGame implements GameLoop {
     }
 
     MainCookie mainCookie;
-    double currentCookies;
-    int cookiesPerClick;
+
     double cookiesPerSecond;
     int cursorCost;
     int timer;
@@ -37,9 +36,7 @@ public class BasicGame implements GameLoop {
     @Override
     public void init() {
         //initialize cookie variables
-        currentCookies = 0;
-        cookiesPerSecond =0;
-        cookiesPerClick = 1;
+
 
         timer = 0;
 
@@ -47,7 +44,8 @@ public class BasicGame implements GameLoop {
 
         //initialize main cookie
         mainCookie = new MainCookie();
-        mainCookie.boundingCircle = new Ellipse2D.Double(SaxionApp.getWidth()/2-mainCookie.size/2,SaxionApp.getHeight()/2-mainCookie.size/2,mainCookie.size, mainCookie.size);
+        mainCookie.cookiesPerClick = 1;
+        mainCookie.cookiesPerSecond = 0;
 
         //initialize SaxionApp settings
         SaxionApp.setFill(Color.black);
@@ -68,7 +66,7 @@ public class BasicGame implements GameLoop {
 
 
         SaxionApp.drawImage(mainCookie.imageFile, SaxionApp.getWidth()/2-mainCookie.size/2,SaxionApp.getHeight()/2-mainCookie.size/2,mainCookie.size, mainCookie.size);
-        SaxionApp.drawText(FormatAmount(currentCookies) + " cookies", SaxionApp.getWidth()/2-50, 215, 28);
+        SaxionApp.drawText(FormatAmount(mainCookie.currentCookies) + " cookies", SaxionApp.getWidth()/2-50, 215, 28);
         SaxionApp.drawText(FormatAmount(cookiesPerSecond) + " cookies per second", SaxionApp.getWidth()/2-60, 240, 24);
         SaxionApp.drawText("Time: "+timer, SaxionApp.getWidth()/2-60, 10, 24);
 
@@ -111,7 +109,7 @@ public class BasicGame implements GameLoop {
     }
 
     private void UpdateCookieCount() {
-        currentCookies+=cookiesPerSecond;
+        mainCookie.currentCookies+=cookiesPerSecond;
     }
 
     @Override
@@ -125,7 +123,7 @@ public class BasicGame implements GameLoop {
         {
             if (mainCookie.boundingCircle.contains(mouseEvent.getX(),mouseEvent.getY()))
             {
-                currentCookies+=cookiesPerClick;
+                mainCookie.currentCookies+=mainCookie.cookiesPerClick;
                 mainCookie.clickCount+=1.0;
             }
             if (new Rectangle(700,750,90,40).contains(mouseEvent.getX(),mouseEvent.getY()))
@@ -136,17 +134,15 @@ public class BasicGame implements GameLoop {
                     cookiesPerSecond = cookiesPerSecond + 0.1;
                 }*/
                 //Savedata, Uncomment for demo
-                /*SaveFile saveFile = new SaveFile();
-                saveFile.SaveData(currentCookies, mainCookie);*/
+                SaveFile data = new SaveFile();
+                //data.buildings = buildings;
+                //data.mainCookie = mainCookie;
+                //data.SaveData(data);
 
                 //Loaddata, uncomment for demo
-                /*ArrayList<Double> loadedData;
-               loadedData = saveFile.LoadData();
-               mainCookie.clickCount = loadedData.get(0);
-               currentCookies = loadedData.get(1);
-               buildings.get(0).amount = loadedData.get(2).intValue();
-               buildings.get(1).amount = loadedData.get(3).intValue();*/
-
+                //SaveFile saveData = new SaveFile().LoadData();
+                //mainCookie = saveData.mainCookie;
+                //buildings = saveData.buildings;
             }
         }
     }
