@@ -25,9 +25,7 @@ public class SaveFile {
             progress.mainCookie.currentCookies = Integer.parseInt(jsonObject.get("currentCookies").toString());
             progress.mainCookie.clickCount = Integer.parseInt(jsonObject.get("clickCount").toString());
 
-            List<Integer> buildings = new ArrayList<>();
             JSONArray jsonArray = (JSONArray) jsonObject.get("buildings");
-            //.addAll(jsonArray);
             progress.buildings = Building.SetBuildingList();
 
             for (int i = 0; i < progress.buildings.size(); i++) {
