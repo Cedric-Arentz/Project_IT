@@ -135,14 +135,18 @@ public class BasicGame implements GameLoop {
                     currentCookies-=cursorCost;
                     cookiesPerSecond = cookiesPerSecond + 0.1;
                 }*/
-                SaveFile saveFile = new SaveFile();
-                saveFile.SaveData(currentCookies, mainCookie);
+                //Savedata, Uncomment for demo
+                /*SaveFile saveFile = new SaveFile();
+                saveFile.SaveData(currentCookies, mainCookie);*/
+
+                //Loaddata, uncomment for demo
                 /*ArrayList<Double> loadedData;
                loadedData = saveFile.LoadData();
                mainCookie.clickCount = loadedData.get(0);
                currentCookies = loadedData.get(1);
                buildings.get(0).amount = loadedData.get(2).intValue();
                buildings.get(1).amount = loadedData.get(3).intValue();*/
+
             }
         }
     }
