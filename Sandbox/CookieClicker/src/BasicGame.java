@@ -123,7 +123,7 @@ public class BasicGame implements GameLoop {
         SaxionApp.drawText("Produces " + buildings.get(selectedBuilding).baseProduction + " cookies per second", 210,160,14);
         //Buy buttons
         SaxionApp.drawText("Buy 1: ", 550,120,18);
-        if (buildings.get(selectedBuilding).baseCost <= currentCookies)
+        if (buildings.get(selectedBuilding).getPrice(1) <= currentCookies)
         {
             SaxionApp.setFill(Color.green);
         }else {
@@ -139,7 +139,7 @@ public class BasicGame implements GameLoop {
         int xPos;
         int yPos  = SaxionApp.getWidth() / 4 + 20;
         for (int i = 0; i < buildings.size(); i++) {
-            if (buildings.get(i).baseCost <= currentCookies)
+            if (buildings.get(i).getPrice(1) <= currentCookies)
             {
                 SaxionApp.setFill(Color.green);
             }else{
@@ -153,6 +153,7 @@ public class BasicGame implements GameLoop {
             }
             SaxionApp.drawRectangle(xPos, yPos, 200, 50);
             SaxionApp.drawText(buildings.get(i).name, xPos, yPos, 25);
+            SaxionApp.drawText(String.format("%15s", String.valueOf(buildings.get(i).amount)), xPos + 60, yPos + 10, 30);
 
         }
     }
@@ -200,7 +201,7 @@ public class BasicGame implements GameLoop {
             }
             //buy 1 button
             if (new Rectangle(620,115,100,30).contains(mouseEvent.getX(),mouseEvent.getY())){
-                if (buildings.get(selectedBuilding).baseCost <= currentCookies){
+                if (buildings.get(selectedBuilding).getPrice(1) <= currentCookies){
                     UpdateCookieCount(-buildings.get(selectedBuilding).getPrice(1));
                     buildings.get(selectedBuilding).amount++;
                     updateProduction();
@@ -219,13 +220,10 @@ public class BasicGame implements GameLoop {
 
     @Override
     public void keyboardEvent(KeyboardEvent keyboardEvent) {
-        switch (currentScreen){
-            case Shop -> {
-                if (keyboardEvent.getKeyCode() == KeyboardEvent.VK_ESCAPE)
-                {
-                    //leave shop menu with Escape Key
-                    currentScreen = Screen.Game;
-                }
+        if (currentScreen == Screen.Shop | currentScreen == Screen.Settings) {
+            if (keyboardEvent.getKeyCode() == KeyboardEvent.VK_ESCAPE) {
+                //leave shop menu with Escape Key
+                currentScreen = Screen.Game;
             }
         }
         if (keyboardEvent.isKeyPressed() & keyboardEvent.getKeyCode() == KeyboardEvent.VK_SPACE)
@@ -236,7 +234,6 @@ public class BasicGame implements GameLoop {
         {
             currentCookies = 0;
         }
-
     }
 
     private String FormatAmount(int amount) {
