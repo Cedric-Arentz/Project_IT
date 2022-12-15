@@ -1,2 +1,4 @@
 # Project exclude paths
 /out/
+/Sandbox/resources/json-simple-1.1.1.jar
+/SaveFile.json
