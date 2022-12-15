@@ -126,7 +126,7 @@ public class BasicGame implements GameLoop {
             if (mainCookie.boundingCircle.contains(mouseEvent.getX(),mouseEvent.getY()))
             {
                 currentCookies+=cookiesPerClick;
-                mainCookie.clickCount+=1;
+                mainCookie.clickCount+=1.0;
             }
             if (new Rectangle(700,750,90,40).contains(mouseEvent.getX(),mouseEvent.getY()))
             {
