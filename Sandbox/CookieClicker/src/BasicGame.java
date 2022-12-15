@@ -32,12 +32,15 @@ public class BasicGame implements GameLoop {
         Settings
     }
 
+    List<Text> text = new ArrayList<>();
+
     Screen currentScreen = Screen.Start;
     MainCookie mainCookie;
 
     double cookiesPerSecond;
     int timer;
-    List<Building> buildings = Building.SetBuildingList();
+    int stopwatch;
+    List<Building> buildings = Building.setBuildingList();
     int selectedBuilding = 0;
 
     @Override
@@ -48,7 +51,6 @@ public class BasicGame implements GameLoop {
 
         //initialize main cookie
         mainCookie = new MainCookie();
-        mainCookie.size = SaxionApp.getWidth() / 3;
         mainCookie.cookiesPerClick = 1;
         mainCookie.cookiesPerSecond = 0;
 
@@ -65,7 +67,7 @@ public class BasicGame implements GameLoop {
         SaxionApp.clear();
 
         switch (currentScreen) {
-            case Start -> currentScreen = Screen.Game;
+            case Start -> DrawStartScreen();
             case Shop -> DrawShopInterface();
             case Game -> DrawMainScreen();
             case Settings -> {
@@ -75,13 +77,21 @@ public class BasicGame implements GameLoop {
         timer += 20;
         if (timer >= 1000) {
             UpdateCookieCount(cookiesPerSecond);
+            stopwatch++;
             timer = 0;
         }
 
 
     }
 
+    private void DrawStartScreen() {
+        SaxionApp.drawText("Cookieclicker",SaxionApp.getWidth()/2-125,100,40);
+        SaxionApp.setFill(Color.blue);
+        SaxionApp.drawRectangle(SaxionApp.getWidth()/2-125,500,250,50);
+        SaxionApp.drawRectangle(SaxionApp.getWidth()/2-125,575,250,50);
 
+
+    }
     private void DrawMainScreen() {
         //background and game elements
         SaxionApp.drawImage("Sandbox/CookieClicker/background.jpg", 0, 0, SaxionApp.getWidth(), SaxionApp.getHeight());
@@ -98,6 +108,25 @@ public class BasicGame implements GameLoop {
 
         //Temporary timer
         SaxionApp.drawText("Time: " + timer, SaxionApp.getWidth() / 2 - 60, 10, 24);
+        SaxionApp.drawText("Total time: " + stopwatch, 600, 10, 20);
+
+
+        for (int i = 0; i < text.size(); i++) {
+            double percentage = (double) text.get(i).duration/1500;
+            int transparency = (int) (percentage * 255);
+            SaxionApp.setTextDrawingColor(new Color(255, 255, 255, transparency));
+            //SaxionApp.setTextDrawingColor(new Color(255, 255, 255,50));
+            SaxionApp.drawText(text.get(i).text,text.get(i).xPos,text.get(i).yPos, 20);
+            text.get(i).yPos = text.get(i).yPos- 1;
+            text.get(i).duration-=20;
+
+            if (text.get(i).duration < 0){
+                 text.remove(i);
+            }
+
+        }
+        SaxionApp.setTextDrawingColor(Color.white);
+
     }
 
     private void DrawShopInterface() {
@@ -172,6 +201,7 @@ public class BasicGame implements GameLoop {
                     if (mainCookie.boundingCircle.contains(mouseEvent.getX(), mouseEvent.getY())) {
                         mainCookie.currentCookies += mainCookie.cookiesPerClick;
                         mainCookie.clickCount += 1;
+                        text.add(new Text(mouseEvent.getX(), mouseEvent.getY(), "+" + FormatAmount(mainCookie.cookiesPerClick)));
                     }
                     if (new Rectangle(SaxionApp.getWidth() - 100, SaxionApp.getHeight() - 50, 90, 40).contains(mouseEvent.getX(), mouseEvent.getY())) {
                         currentScreen = Screen.Shop;
@@ -179,6 +209,19 @@ public class BasicGame implements GameLoop {
                 }
             }
             case Shop -> shopMouseEvent(mouseEvent);
+            case Start -> {
+                if (new Rectangle(SaxionApp.getWidth()/2-125,500,250,50).contains(mouseEvent.getX(), mouseEvent.getY()))
+                {
+                    currentScreen = Screen.Game;
+                } else if (new Rectangle(SaxionApp.getWidth()/2-125,575,250,50).contains(mouseEvent.getX(), mouseEvent.getY())) {
+                    SaveFile saveData = new SaveFile().LoadData();
+                    mainCookie = saveData.mainCookie;
+                    buildings = saveData.buildings;
+                    updateProduction();
+                    currentScreen = Screen.Game;
+                }
+                currentScreen = Screen.Game;
+            }
         }
     }
 
@@ -206,6 +249,13 @@ public class BasicGame implements GameLoop {
                     buildings.get(selectedBuilding).amount++;
                     updateProduction();
                 }
+            }
+            //temporary save button
+            if (new Rectangle(40, 70, 120, 120).contains(mouseEvent.getX(), mouseEvent.getY())){
+                SaveFile data = new SaveFile();
+                data.buildings = buildings;
+                data.mainCookie = mainCookie;
+                data.SaveData(data);
             }
         }
     }
