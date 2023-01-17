@@ -46,21 +46,7 @@ public class BasicGame implements GameLoop {
 
     @Override
     public void init() {
-        //initialize cookie variables
-
-        timer = 0;
-
-        //initialize main cookie
-        mainCookie = new MainCookie();
-        mainCookie.cookiesPerClick = 1;
-        mainCookie.cookiesPerSecond = 0;
-
-        //initialize SaxionApp settings
-        SaxionApp.setFill(Color.black);
-        SaxionApp.setTextDrawingColor(Color.white);
-        SaxionApp.turnBorderOff();
-
-
+        setNewGame();
     }
 
     @Override
@@ -69,7 +55,7 @@ public class BasicGame implements GameLoop {
 
         switch (currentScreen) {
             case Start -> DrawStartScreen();
-            case Shop -> drawSettingScreen();
+            case Shop -> DrawShopInterface();
             case Game -> DrawMainScreen();
             case Settings -> drawSettingScreen();
         }
@@ -234,6 +220,7 @@ public class BasicGame implements GameLoop {
             case Start -> {
                 if (new Rectangle(SaxionApp.getWidth()/2-125,500,250,50).contains(mouseEvent.getX(), mouseEvent.getY()))
                 {
+                    setNewGame();
                     currentScreen = Screen.Game;
                 } else if (new Rectangle(SaxionApp.getWidth()/2-125,575,250,50).contains(mouseEvent.getX(), mouseEvent.getY())) {
                     SaveFile saveData = new SaveFile().LoadData();
@@ -242,11 +229,42 @@ public class BasicGame implements GameLoop {
                     updateProduction();
                     currentScreen = Screen.Game;
                 }
-//                currentScreen = Screen.Game;
+            }
+            case Settings -> {
+                //Return to menu clickbox
+                if (new Rectangle(SaxionApp.getWidth()/2-100,300,250,50).contains(mouseEvent.getX(),mouseEvent.getY())) {
+                    currentScreen = Screen.Start;
+                }
+                //Save game clickbox
+                if (new Rectangle(SaxionApp.getWidth()/2-125,375,250,50).contains(mouseEvent.getX(),mouseEvent.getY())) {
+                    SaveFile data = new SaveFile();
+                    data.buildings = buildings;
+                    data.mainCookie = mainCookie;
+                    data.SaveData(data);
+                }
+                //Load game clickbox
+                if (new Rectangle(SaxionApp.getWidth()/2-125,450,250,50).contains(mouseEvent.getX(),mouseEvent.getY())) {
+                    SaveFile loadData = new SaveFile().LoadData();
+                    mainCookie = loadData.mainCookie;
+                    buildings = loadData.buildings;
+                    updateProduction();
+                    currentScreen = Screen.Game;
+                }
             }
         }
     }
-
+    private void setNewGame(){
+//initialize cookie variables
+        timer = 0;
+        //initialize main cookie
+        mainCookie = new MainCookie();
+        mainCookie.cookiesPerClick = 1;
+        mainCookie.cookiesPerSecond = 0;
+        //initialize SaxionApp settings
+        SaxionApp.setFill(Color.black);
+        SaxionApp.setTextDrawingColor(Color.white);
+        SaxionApp.turnBorderOff();
+    }
     private void shopMouseEvent(MouseEvent mouseEvent) {
         if (mouseEvent.isMouseDown() & mouseEvent.isLeftMouseButton()) {
             //this for-loop checks for each building if it has been clicked
