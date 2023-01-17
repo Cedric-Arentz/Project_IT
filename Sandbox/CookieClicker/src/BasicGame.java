@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 
@@ -68,10 +69,9 @@ public class BasicGame implements GameLoop {
 
         switch (currentScreen) {
             case Start -> DrawStartScreen();
-            case Shop -> DrawShopInterface();
+            case Shop -> drawSettingScreen();
             case Game -> DrawMainScreen();
-            case Settings -> {
-            }
+            case Settings -> drawSettingScreen();
         }
 
         timer += 20;
@@ -83,14 +83,36 @@ public class BasicGame implements GameLoop {
 
 
     }
-
+    private void drawSettingScreen(){
+        //Main screen
+        DrawMainScreen();
+        //Set opacity
+        SaxionApp.setFill(new Color(0, 0, 0, 200));
+        SaxionApp.drawRectangle(0, 0, 1000, SaxionApp.getHeight());
+        // Button color
+        SaxionApp.setFill(new Color(244,164,96));
+        // Buttons
+        SaxionApp.drawRectangle(SaxionApp.getWidth()/2-125,300,250,50);
+        SaxionApp.drawRectangle(SaxionApp.getWidth()/2-125,375,250,50);
+        SaxionApp.drawRectangle(SaxionApp.getWidth()/2-125,450,250,50);
+        //Text color
+        SaxionApp.setTextDrawingColor(Color.black);
+        //Text for buttons
+        SaxionApp.drawText("Return to menu",SaxionApp.getWidth()/2-100,312,30);
+        SaxionApp.drawText("Save Game", SaxionApp.getWidth()/2-75,387,30);
+        SaxionApp.drawText("Load Game",SaxionApp.getWidth()/2-75,462,30);
+    }
     private void DrawStartScreen() {
+
+        SaxionApp.setTextDrawingColor(Color.white);
         SaxionApp.drawText("Cookieclicker",SaxionApp.getWidth()/2-125,100,40);
-        SaxionApp.setFill(Color.blue);
+        SaxionApp.setFill(new Color(244,164,96));
         SaxionApp.drawRectangle(SaxionApp.getWidth()/2-125,500,250,50);
         SaxionApp.drawRectangle(SaxionApp.getWidth()/2-125,575,250,50);
-
-
+        SaxionApp.setTextDrawingColor(Color.black);
+        //Start screen text
+        SaxionApp.drawText("Start new game",SaxionApp.getWidth()/2-100,510,30);
+        SaxionApp.drawText("Load Game", SaxionApp.getWidth()/2-75,585,30);
     }
     private void DrawMainScreen() {
         //background and game elements
@@ -137,12 +159,12 @@ public class BasicGame implements GameLoop {
         SaxionApp.drawRectangle(0, 0, SaxionApp.getWidth(), SaxionApp.getHeight());
         //TODO: Replace Rectangle with Shop interface image
 
+
         //draw detailed screen
-        SaxionApp.setFill(Color.blue);
+        SaxionApp.setFill(new Color(244,164,96));
         SaxionApp.drawRectangle(10, 40, SaxionApp.getWidth() - 20, SaxionApp.getHeight() / 4);
         //Image
-        SaxionApp.setFill(Color.cyan);
-        SaxionApp.drawRectangle(40, 70, 120, 120);
+        SaxionApp.drawImage(buildings.get(selectedBuilding).fileName,40,70,120,120);
         //Name
         SaxionApp.drawText(buildings.get(selectedBuilding).name, SaxionApp.getWidth() / 2 - 50, 45, 30);
         //Description
@@ -220,7 +242,7 @@ public class BasicGame implements GameLoop {
                     updateProduction();
                     currentScreen = Screen.Game;
                 }
-                currentScreen = Screen.Game;
+//                currentScreen = Screen.Game;
             }
         }
     }
@@ -270,10 +292,17 @@ public class BasicGame implements GameLoop {
 
     @Override
     public void keyboardEvent(KeyboardEvent keyboardEvent) {
+
         if (currentScreen == Screen.Shop | currentScreen == Screen.Settings) {
-            if (keyboardEvent.getKeyCode() == KeyboardEvent.VK_ESCAPE) {
+            if (keyboardEvent.getKeyCode() == KeyboardEvent.VK_ESCAPE ) {
                 //leave shop menu with Escape Key
                 currentScreen = Screen.Game;
+            }
+        }
+        if (currentScreen == Screen.Game | currentScreen == Screen.Shop){
+            if (keyboardEvent.getKeyCode() == KeyboardEvent.VK_M){
+                currentScreen = Screen.Settings;
+                //Enter shop menu with the "M" button
             }
         }
         if (keyboardEvent.isKeyPressed() & keyboardEvent.getKeyCode() == KeyboardEvent.VK_SPACE) {
