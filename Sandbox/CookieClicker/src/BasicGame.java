@@ -4,16 +4,19 @@ import nl.saxion.app.interaction.GameLoop;
 import nl.saxion.app.interaction.KeyboardEvent;
 import nl.saxion.app.interaction.MouseEvent;
 
+import java.awt.geom.Ellipse2D;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import java.awt.*;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -36,10 +39,11 @@ public class BasicGame implements GameLoop {
 
     Screen currentScreen = Screen.Start;
     MainCookie mainCookie;
-
+    GoldenCookie goldenCookie;
     double cookiesPerSecond;
     int timer;
     int stopwatch;
+    boolean debug = false;
     List<Building> buildings = Building.setBuildingList();
     int selectedBuilding = 0;
 
@@ -53,6 +57,9 @@ public class BasicGame implements GameLoop {
         mainCookie = new MainCookie();
         mainCookie.cookiesPerClick = 1;
         mainCookie.cookiesPerSecond = 0;
+
+        //initialize golden cookie
+        goldenCookie = new GoldenCookie();
 
         //initialize SaxionApp settings
         SaxionApp.setFill(Color.black);
@@ -79,19 +86,22 @@ public class BasicGame implements GameLoop {
             UpdateCookieCount(cookiesPerSecond);
             stopwatch++;
             timer = 0;
+            if (SaxionApp.getRandomValueBetween(1, 1000) == 73) {
+                goldenCookie.spawnGoldenCookie();
+                goldenCookie.active = true;
+            }
         }
-
-
     }
 
     private void DrawStartScreen() {
-        SaxionApp.drawText("Cookieclicker",SaxionApp.getWidth()/2-125,100,40);
+        SaxionApp.drawText("Cookieclicker", SaxionApp.getWidth() / 2 - 125, 100, 40);
         SaxionApp.setFill(Color.blue);
-        SaxionApp.drawRectangle(SaxionApp.getWidth()/2-125,500,250,50);
-        SaxionApp.drawRectangle(SaxionApp.getWidth()/2-125,575,250,50);
+        SaxionApp.drawRectangle(SaxionApp.getWidth() / 2 - 125, 500, 250, 50);
+        SaxionApp.drawRectangle(SaxionApp.getWidth() / 2 - 125, 575, 250, 50);
 
 
     }
+
     private void DrawMainScreen() {
         //background and game elements
         SaxionApp.drawImage("Sandbox/CookieClicker/background.jpg", 0, 0, SaxionApp.getWidth(), SaxionApp.getHeight());
@@ -106,27 +116,49 @@ public class BasicGame implements GameLoop {
         //Main Cookie
         SaxionApp.drawImage(mainCookie.imageFile, SaxionApp.getWidth() / 2 - mainCookie.size / 2, SaxionApp.getHeight() / 2 - mainCookie.size / 2, mainCookie.size, mainCookie.size);
 
-        //Temporary timer
-        SaxionApp.drawText("Time: " + timer, SaxionApp.getWidth() / 2 - 60, 10, 24);
-        SaxionApp.drawText("Total time: " + stopwatch, 600, 10, 20);
+        //debug info
+        if (debug) {
+            SaxionApp.drawText("Time: " + timer, SaxionApp.getWidth() / 2 - 60, 10, 24);
+            SaxionApp.drawText("Total time: " + stopwatch, 600, 10, 20);
+        }
 
-
+        //floating text
         for (int i = 0; i < text.size(); i++) {
-            double percentage = (double) text.get(i).duration/1500;
+            double percentage = (double) text.get(i).duration / 1500;
             int transparency = (int) (percentage * 255);
             SaxionApp.setTextDrawingColor(new Color(255, 255, 255, transparency));
             //SaxionApp.setTextDrawingColor(new Color(255, 255, 255,50));
-            SaxionApp.drawText(text.get(i).text,text.get(i).xPos,text.get(i).yPos, 20);
-            text.get(i).yPos = text.get(i).yPos- 1;
-            text.get(i).duration-=20;
+            SaxionApp.drawText(text.get(i).text, text.get(i).xPos, text.get(i).yPos, 20);
+            text.get(i).yPos = text.get(i).yPos - 1;
+            text.get(i).duration -= 20;
 
-            if (text.get(i).duration < 0){
-                 text.remove(i);
+            if (text.get(i).duration <= 0) {
+                text.remove(i);
             }
-
         }
-        SaxionApp.setTextDrawingColor(Color.white);
 
+        SaxionApp.setTextDrawingColor(Color.white);
+        //display golden cookie
+        if (goldenCookie.active) {
+            System.out.println(goldenCookie.duration);
+            if (goldenCookie.duration <= 0) {
+                goldenCookie.active = false;
+            } else if (goldenCookie.duration < 8000) {
+                double percentage = (float) goldenCookie.duration / 8000;
+                goldenCookie.size = (int) (percentage * 75);
+            } else if (goldenCookie.duration > 12000) {
+                double percentage = (float) (20000 - goldenCookie.duration) / 8000;
+                goldenCookie.size = (int) (percentage * 75);
+            } else {
+                goldenCookie.size = 75;
+            }
+            goldenCookie.duration -= 20;
+            SaxionApp.drawImage(goldenCookie.imageFile,
+                    goldenCookie.x - goldenCookie.size / 2,
+                    goldenCookie.y - goldenCookie.size / 2,
+                    goldenCookie.size,
+                    goldenCookie.size);
+        }
     }
 
     private void DrawShopInterface() {
@@ -179,7 +211,7 @@ public class BasicGame implements GameLoop {
             }
             SaxionApp.drawRectangle(xPos, yPos, 200, 50);
             SaxionApp.drawText(buildings.get(i).name, xPos, yPos, 25);
-            SaxionApp.drawText(String.format("%15s", String.valueOf(buildings.get(i).amount)), xPos + 60, yPos + 10, 30);
+            SaxionApp.drawText(String.format("%15s", buildings.get(i).amount), xPos + 60, yPos + 10, 30);
 
         }
     }
@@ -206,14 +238,20 @@ public class BasicGame implements GameLoop {
                     if (new Rectangle(SaxionApp.getWidth() - 100, SaxionApp.getHeight() - 50, 90, 40).contains(mouseEvent.getX(), mouseEvent.getY())) {
                         currentScreen = Screen.Shop;
                     }
+                    if (new Ellipse2D.Double(goldenCookie.x - goldenCookie.size / 2, goldenCookie.y - goldenCookie.size / 2, goldenCookie.size, goldenCookie.size).contains(mouseEvent.getX(), mouseEvent.getY())) {
+                        if (goldenCookie.active) {
+                            goldenCookie.active = false;
+                            text.add(new Text(mouseEvent.getX(), mouseEvent.getY(), "+" + FormatAmount(1000)));
+                            mainCookie.currentCookies += 1000;
+                        }
+                    }
                 }
             }
             case Shop -> shopMouseEvent(mouseEvent);
             case Start -> {
-                if (new Rectangle(SaxionApp.getWidth()/2-125,500,250,50).contains(mouseEvent.getX(), mouseEvent.getY()))
-                {
+                if (new Rectangle(SaxionApp.getWidth() / 2 - 125, 500, 250, 50).contains(mouseEvent.getX(), mouseEvent.getY())) {
                     currentScreen = Screen.Game;
-                } else if (new Rectangle(SaxionApp.getWidth()/2-125,575,250,50).contains(mouseEvent.getX(), mouseEvent.getY())) {
+                } else if (new Rectangle(SaxionApp.getWidth() / 2 - 125, 575, 250, 50).contains(mouseEvent.getX(), mouseEvent.getY())) {
                     SaveFile saveData = new SaveFile().LoadData();
                     mainCookie = saveData.mainCookie;
                     buildings = saveData.buildings;
@@ -251,7 +289,7 @@ public class BasicGame implements GameLoop {
                 }
             }
             //temporary save button
-            if (new Rectangle(40, 70, 120, 120).contains(mouseEvent.getX(), mouseEvent.getY())){
+            if (new Rectangle(40, 70, 120, 120).contains(mouseEvent.getX(), mouseEvent.getY())) {
                 SaveFile data = new SaveFile();
                 data.buildings = buildings;
                 data.mainCookie = mainCookie;
@@ -276,13 +314,24 @@ public class BasicGame implements GameLoop {
                 currentScreen = Screen.Game;
             }
         }
-        if (keyboardEvent.isKeyPressed() & keyboardEvent.getKeyCode() == KeyboardEvent.VK_SPACE) {
-            mainCookie.currentCookies += 1000;
+        //toggle debug mode with spawn commands and extra information
+        if (keyboardEvent.isKeyPressed() & keyboardEvent.getKeyCode() == KeyboardEvent.VK_ENTER) {
+            debug = !debug;
         }
-        if (keyboardEvent.isKeyPressed() & keyboardEvent.getKeyCode() == KeyboardEvent.VK_BACK_SPACE) {
-            mainCookie.currentCookies = 0;
+        //debug commands
+        if (debug) {
+            if (keyboardEvent.isKeyPressed() & keyboardEvent.getKeyCode() == KeyboardEvent.VK_G) {
+                goldenCookie.spawnGoldenCookie();
+            }
+            if (keyboardEvent.isKeyPressed() & keyboardEvent.getKeyCode() == KeyboardEvent.VK_SPACE) {
+                mainCookie.currentCookies += 1000;
+            }
+            if (keyboardEvent.isKeyPressed() & keyboardEvent.getKeyCode() == KeyboardEvent.VK_BACK_SPACE) {
+                mainCookie.currentCookies = 0;
+            }
         }
     }
+
 
     private String FormatAmount(int amount) {
         //overload method when int is used
@@ -314,7 +363,7 @@ public class BasicGame implements GameLoop {
     }
 
     private void UpdateCookieCount(double amount) {
-        mainCookie.currentCookies+=amount;
+        mainCookie.currentCookies += amount;
     }
 }
 
