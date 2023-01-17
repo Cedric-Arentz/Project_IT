@@ -241,8 +241,13 @@ public class BasicGame implements GameLoop {
                     if (new Ellipse2D.Double(goldenCookie.x - goldenCookie.size / 2, goldenCookie.y - goldenCookie.size / 2, goldenCookie.size, goldenCookie.size).contains(mouseEvent.getX(), mouseEvent.getY())) {
                         if (goldenCookie.active) {
                             goldenCookie.active = false;
-                            text.add(new Text(mouseEvent.getX(), mouseEvent.getY(), "+" + FormatAmount(1000)));
-                            mainCookie.currentCookies += 1000;
+                            int goldCookieValue = (int) (mainCookie.currentCookies * 0.15 + 13);
+                            goldCookieValue += mainCookie.cookiesPerSecond * 900 + 13;
+
+                            //15% of the current amount of banked (i.e. unspent) cookies + 13, or
+                            //15 minutes worth of cookies (which is CpS * 900) + 13, whichever is less.
+                            text.add(new Text(mouseEvent.getX(), mouseEvent.getY(), "+" + FormatAmount(goldCookieValue)));
+                            mainCookie.currentCookies += goldCookieValue;
                         }
                     }
                 }
