@@ -23,7 +23,7 @@ public class BasicGame implements GameLoop {
     List<Text> text = new ArrayList<>();
 
     Screen currentScreen = Screen.Start;
-    MainCookie mainCookie;
+    static MainCookie mainCookie;
 
     double cookiesPerSecond;
     int timer;
@@ -116,7 +116,8 @@ public class BasicGame implements GameLoop {
             text.get(i).duration-=20;
 
             if (text.get(i).duration < 0){
-                 text.remove(i);
+                //noinspection SuspiciousListRemoveInLoop
+                text.remove(i);
             }
 
         }
@@ -174,7 +175,7 @@ public class BasicGame implements GameLoop {
             }
             SaxionApp.drawRectangle(xPos, yPos, 200, 50);
             SaxionApp.drawText(buildings.get(i).name, xPos, yPos, 25);
-            SaxionApp.drawText(String.format("%15s", String.valueOf(buildings.get(i).amount)), xPos + 60, yPos + 10, 30);
+            SaxionApp.drawText(String.format("%15s", buildings.get(i).amount), xPos + 60, yPos + 10, 30);
 
         }
     }
@@ -240,6 +241,7 @@ public class BasicGame implements GameLoop {
             }
         }
     }
+
     private void setNewGame(){
 //initialize cookie variables
         timer = 0;
@@ -300,19 +302,22 @@ public class BasicGame implements GameLoop {
 
         if (currentScreen == Screen.Shop | currentScreen == Screen.Settings) {
             if (keyboardEvent.getKeyCode() == KeyboardEvent.VK_ESCAPE ) {
-                //leave shop menu with Escape Key
+                //leave shop/Settings menu with Escape Key
                 currentScreen = Screen.Game;
+                updateProduction();
+
             }
         }
         if (currentScreen == Screen.Game){
             if (keyboardEvent.getKeyCode() == KeyboardEvent.VK_S){
                 currentScreen = Screen.Shop;
+                //Enter shop menu with the "S" Button
             }
         }
         if (currentScreen == Screen.Game | currentScreen == Screen.Shop){
             if (keyboardEvent.getKeyCode() == KeyboardEvent.VK_M){
                 currentScreen = Screen.Settings;
-                //Enter shop menu with the "M" button
+                //Enter Settings menu with the "M" button
             }
         }
         if (keyboardEvent.isKeyPressed() & keyboardEvent.getKeyCode() == KeyboardEvent.VK_SPACE) {

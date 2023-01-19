@@ -1,3 +1,5 @@
+import com.sun.tools.javac.Main;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +19,26 @@ public class Building {
         this.baseCost = baseCost;
         this.baseProduction = baseProduction;
     }
-
+    //Give the user additional discount to upgrades whenever he clicks an amount of times.
+    public double setDiscount(){
+        double discount = 1.0;
+        if (BasicGame.mainCookie.clickCount >= 100){
+            discount = 0.975;
+        }
+        if (BasicGame.mainCookie.clickCount >= 250) {
+            discount = 0.95;
+        }
+        if (BasicGame.mainCookie.clickCount >= 1000){
+            discount = 0.925;
+        }
+        if (BasicGame.mainCookie.clickCount >= 2500){
+            discount = 0.9;
+        }
+        if (BasicGame.mainCookie.clickCount >= 5000){
+            discount = 0.85;
+        }
+        return discount;
+    }
     public int getPrice(int buyAmount){
         double cost;
         if (this.amount < 1){
@@ -28,12 +49,15 @@ public class Building {
         {
             cost = 0;
             for (int i = 0; i < buyAmount; i++) {
+
                 cost += Math.round(baseCost * Math.pow(1.15,amount+i));
             }
         }
+
+        System.out.println(BasicGame.mainCookie.clickCount);
+        cost = cost * setDiscount();
         return (int) cost;
     }
-
 
 
 
