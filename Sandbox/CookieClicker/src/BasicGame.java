@@ -102,8 +102,8 @@ public class BasicGame implements GameLoop {
     }
     private void DrawMainScreen() {
         //background and game elements
-        SaxionApp.drawImage("Sandbox/CookieClicker/background.jpg", 0, 0, SaxionApp.getWidth(), SaxionApp.getHeight());
-        SaxionApp.drawImage("Sandbox/CookieClicker/ShopButton.png", SaxionApp.getWidth() - 100, SaxionApp.getHeight() - 50, 90, 40);
+        SaxionApp.drawImage("Assets/background.jpg", 0, 0, SaxionApp.getWidth(), SaxionApp.getHeight());
+        SaxionApp.drawImage("Assets/ShopButton.png", SaxionApp.getWidth() - 100, SaxionApp.getHeight() - 50, 90, 40);
 
         //Cookie counter
         SaxionApp.setFill(new Color(0, 0, 0, 200));
