@@ -47,7 +47,7 @@ public class BasicGame implements GameLoop {
             case Settings -> drawSettingScreen();
         }
 
-        timer += 20;
+        timer += 25;
         if (timer >= 1000) {
             UpdateCookieCount(cookiesPerSecond);
             stopwatch++;
@@ -302,6 +302,11 @@ public class BasicGame implements GameLoop {
             if (keyboardEvent.getKeyCode() == KeyboardEvent.VK_ESCAPE ) {
                 //leave shop menu with Escape Key
                 currentScreen = Screen.Game;
+            }
+        }
+        if (currentScreen == Screen.Game){
+            if (keyboardEvent.getKeyCode() == KeyboardEvent.VK_S){
+                currentScreen = Screen.Shop;
             }
         }
         if (currentScreen == Screen.Game | currentScreen == Screen.Shop){
