@@ -1,24 +1,11 @@
-import com.sun.tools.javac.Main;
 import nl.saxion.app.SaxionApp;
 import nl.saxion.app.interaction.GameLoop;
 import nl.saxion.app.interaction.KeyboardEvent;
 import nl.saxion.app.interaction.MouseEvent;
-
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
-
 import java.awt.*;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 public class BasicGame implements GameLoop {
 
