@@ -17,7 +17,8 @@ public class BasicGame implements GameLoop {
         Start,
         Game,
         Shop,
-        Settings
+        Settings,
+        Achievements
     }
 
     List<Text> text = new ArrayList<>();
@@ -45,6 +46,7 @@ public class BasicGame implements GameLoop {
             case Shop -> DrawShopInterface();
             case Game -> DrawMainScreen();
             case Settings -> drawSettingScreen();
+            case Achievements -> drawAchievementsScreen();
         }
 
         timer += 25;
@@ -74,6 +76,44 @@ public class BasicGame implements GameLoop {
         SaxionApp.drawText("Return to menu",SaxionApp.getWidth()/2-100,312,30);
         SaxionApp.drawText("Save Game", SaxionApp.getWidth()/2-75,387,30);
         SaxionApp.drawText("Load Game",SaxionApp.getWidth()/2-75,462,30);
+    }
+    private void drawAchievementsScreen(){
+        //Main screen
+        DrawMainScreen();
+        //Set opacity
+        SaxionApp.setFill(new Color(0, 0, 0, 200));
+        SaxionApp.drawRectangle(0, 0, 1000, SaxionApp.getHeight());
+        // Button color
+        SaxionApp.setFill(new Color(244,164,96));
+        // Buttons
+        SaxionApp.drawRectangle(SaxionApp.getWidth()/2-300,50,600,75);
+        SaxionApp.drawRectangle(SaxionApp.getWidth()/2-300,150,600,75);
+        SaxionApp.drawRectangle(SaxionApp.getWidth()/2-300,250,600,75);
+        SaxionApp.drawRectangle(SaxionApp.getWidth()/2-300,350,600,75);
+        SaxionApp.drawRectangle(SaxionApp.getWidth()/2-300,450,600,75);
+        //Text color
+        SaxionApp.setTextDrawingColor(Color.black);
+        //Text for buttons
+        SaxionApp.drawText("Click 100 times",SaxionApp.getWidth()/2-200,75,30);
+        SaxionApp.drawText("Click 250 times", SaxionApp.getWidth()/2-200,175,30);
+        SaxionApp.drawText("Click 1000 times",SaxionApp.getWidth()/2-200,275,30);
+        SaxionApp.drawText("Click 2500 times",SaxionApp.getWidth()/2-200,375,30);
+        SaxionApp.drawText("Click 10000 times",SaxionApp.getWidth()/2-200,475,30);
+        if (mainCookie.clickCount >= 100){
+            SaxionApp.drawImage("Assets/Cursor.png",SaxionApp.getWidth()/2-275,75,50,50);
+        }
+        if (mainCookie.clickCount >= 250){
+            SaxionApp.drawImage("Assets/Cursor.png",SaxionApp.getWidth()/2-275,175,50,50);
+        }
+        if (mainCookie.clickCount >= 1000){
+            SaxionApp.drawImage("Assets/Cursor.png",SaxionApp.getWidth()/2-275,275,50,50);
+        }
+        if (mainCookie.clickCount >= 2500){
+            SaxionApp.drawImage("Assets/Cursor.png",SaxionApp.getWidth()/2-275,375,50,50);
+        }
+        if (mainCookie.clickCount >= 10000){
+            SaxionApp.drawImage("Assets/Cursor.png",SaxionApp.getWidth()/2-275,475,50,50);
+        }
     }
     private void DrawStartScreen() {
 
@@ -300,12 +340,16 @@ public class BasicGame implements GameLoop {
     @Override
     public void keyboardEvent(KeyboardEvent keyboardEvent) {
 
-        if (currentScreen == Screen.Shop | currentScreen == Screen.Settings) {
+        if (currentScreen == Screen.Shop | currentScreen == Screen.Settings | currentScreen ==  Screen.Achievements) {
             if (keyboardEvent.getKeyCode() == KeyboardEvent.VK_ESCAPE ) {
                 //leave shop/Settings menu with Escape Key
                 currentScreen = Screen.Game;
                 updateProduction();
-
+            }
+        }
+        if (currentScreen == Screen.Game | currentScreen == Screen.Shop){
+            if (keyboardEvent.getKeyCode() == keyboardEvent.VK_A){
+                currentScreen = Screen.Achievements;
             }
         }
         if (currentScreen == Screen.Game){
