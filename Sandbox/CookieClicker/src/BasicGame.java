@@ -222,15 +222,6 @@ public class BasicGame implements GameLoop {
 
     @Override
     public void mouseEvent(MouseEvent mouseEvent) {
-        //SaveFile data = new SaveFile();
-        //data.buildings = buildings;
-        //data.mainCookie = mainCookie;
-        //data.SaveData(data);
-
-        //Loaddata, uncomment for demo
-        //SaveFile saveData = new SaveFile().LoadData();
-        //mainCookie = saveData.mainCookie;
-        //buildings = saveData.buildings;
         switch (currentScreen) {
             case Game -> {
                 if (mouseEvent.isMouseDown() & mouseEvent.isLeftMouseButton()) {
@@ -348,7 +339,7 @@ public class BasicGame implements GameLoop {
             }
         }
         if (currentScreen == Screen.Game | currentScreen == Screen.Shop){
-            if (keyboardEvent.getKeyCode() == keyboardEvent.VK_A){
+            if (keyboardEvent.getKeyCode() == KeyboardEvent.VK_A){
                 currentScreen = Screen.Achievements;
             }
         }
