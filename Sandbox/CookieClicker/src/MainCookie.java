@@ -4,7 +4,7 @@ import java.awt.geom.Ellipse2D;
 
 public class MainCookie {
 
-    String imageFile = "Sandbox/CookieClicker/cookie.png";
+    String imageFile = "Assets/cookie.png";
     int size = SaxionApp.getWidth() / 3;
 
     int clickCount = 0;
