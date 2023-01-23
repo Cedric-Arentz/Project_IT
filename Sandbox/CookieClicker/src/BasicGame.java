@@ -24,6 +24,8 @@ public class BasicGame implements GameLoop {
     }
 
     List<Text> text = new ArrayList<>();
+    List<Integer> clicksInMinute = new ArrayList<>();
+
 
     Screen currentScreen = Screen.Start;
     static MainCookie mainCookie;
@@ -70,12 +72,21 @@ public class BasicGame implements GameLoop {
             case Settings -> drawSettingScreen();
             case Achievements -> drawAchievementsScreen();
         }
+        if (currentScreen == Screen.Shop| currentScreen == Screen.Achievements | currentScreen == Screen.Settings){
+            SaxionApp.drawImage("Assets/exit.png",580,665,140,55);
+        }
 
         timer += 20;
         if (timer >= 1000) {
             UpdateCookieCount(cookiesPerSecond);
             stopwatch++;
             timer = 0;
+            for (int i = 0; i < clicksInMinute.size(); i++) {
+                if (clicksInMinute.get(i) < stopwatch-20){
+                    clicksInMinute.remove(i);
+                }
+
+            }
             if (SaxionApp.getRandomValueBetween(1, 1000) == 73) {
                 goldenCookie.spawnGoldenCookie();
                 goldenCookie.active = true;
@@ -155,13 +166,15 @@ public class BasicGame implements GameLoop {
     private void DrawMainScreen() {
         //background and game elements
         SaxionApp.drawImage("Assets/background.jpg", 0, 0, SaxionApp.getWidth(), SaxionApp.getHeight());
-        SaxionApp.drawImage("Assets/ShopButton.png", SaxionApp.getWidth() - 100, SaxionApp.getHeight() - 50, 90, 40);
+        SaxionApp.drawImage("Assets/MainscreenMenu.png",540,550,200,190);
 
         //Cookie counter
         SaxionApp.setFill(new Color(0, 0, 0, 200));
         SaxionApp.drawRectangle(0, SaxionApp.getHeight() / 5, 1000, 75);
         SaxionApp.drawText(FormatAmount(mainCookie.currentCookies) + " cookies", SaxionApp.getWidth() / 2 - 50, SaxionApp.getHeight() / 5 + 15, 28);
         SaxionApp.drawText(FormatAmount(cookiesPerSecond) + " cookies per second", SaxionApp.getWidth() / 2 - 60, SaxionApp.getHeight() / 5 + 40, 24);
+        //click speed
+        //SaxionApp.drawText(clicksInMinute.size()*3+" clicks per minute", 100, SaxionApp.getHeight() / 5 + 25, 24);
 
         //Main Cookie
         SaxionApp.drawImage(mainCookie.imageFile, SaxionApp.getWidth() / 2 - mainCookie.size / 2, SaxionApp.getHeight() / 2 - mainCookie.size / 2, mainCookie.size, mainCookie.size);
@@ -203,6 +216,9 @@ public class BasicGame implements GameLoop {
             } else {
                 goldenCookie.size = 75;
             }
+            if (goldenCookie.duration == 12000){
+                SaxionApp.playSound("Assets/goldencookie.wav");
+            }
             goldenCookie.duration -= 20;
             SaxionApp.drawImage(goldenCookie.imageFile,
                     goldenCookie.x - goldenCookie.size / 2,
@@ -214,82 +230,93 @@ public class BasicGame implements GameLoop {
 
     private void DrawShopInterface() {
         DrawMainScreen();
+        String emptybutton = "Assets/emptybutton.png";
 
         //Shop background
         SaxionApp.setFill(new Color(0, 0, 0, 200));
         SaxionApp.drawRectangle(0, 0, SaxionApp.getWidth(), SaxionApp.getHeight());
         //TODO: Replace Rectangle with Shop interface image
+        SaxionApp.drawImage("Assets/buildingbackground.png",125,230,500,410);
 
         //draw detailed screen
-        SaxionApp.setFill(new Color(244,164,96));
-        SaxionApp.drawRectangle(10, 40, SaxionApp.getWidth() - 20, SaxionApp.getHeight() / 4);
+        SaxionApp.drawImage("Assets/DetailBackground.png",10, 40, 730, 200);
         //Image
-        SaxionApp.drawImage(buildings.get(selectedBuilding).fileName,40,70,120,120);
+        SaxionApp.drawImage(buildings.get(selectedBuilding).fileName,40,70,140,140);
         //Name
-        SaxionApp.drawText(buildings.get(selectedBuilding).name, SaxionApp.getWidth() / 2 - 50, 45, 30);
+        SaxionApp.drawText(buildings.get(selectedBuilding).name, 325, 65, 30);
         //Description
         SaxionApp.drawText(buildings.get(selectedBuilding).description, 210, 120, 24);
         //Production info
         SaxionApp.drawText("Produces " + buildings.get(selectedBuilding).baseProduction + " cookies per second", 210, 160, 14);
-        //Buy buttons
-        SaxionApp.drawText("Buy 1: ", 550, 120, 18);
+        //buy button
         if (buildings.get(selectedBuilding).getPrice(1) <= mainCookie.currentCookies) {
-            SaxionApp.setFill(Color.green);
+            SaxionApp.drawImage("Assets/buybutton.png",580, 115, 135, 50);
         } else {
-            SaxionApp.setFill(Color.red);
+            SaxionApp.drawImage("Assets/buyinactive.png",580, 115, 135, 50);
         }
-        SaxionApp.drawRectangle(620, 115, 100, 30);
-        SaxionApp.drawText(FormatAmount(buildings.get(selectedBuilding).getPrice(1)), 625, 120, 24);
+        //price
+        SaxionApp.drawImage("Assets/icon.png",585,78,30,30);
+        SaxionApp.drawText(FormatAmount(buildings.get(selectedBuilding).getPrice(1)), 615, 82, 24);
         //buildings owned
         SaxionApp.drawText("Owned: " + buildings.get(selectedBuilding).amount, 615, 190, 22);
 
 
         //draw buildings
         int xPos;
-        int yPos = SaxionApp.getWidth() / 4 + 20;
+        int yPos = 180;
         for (int i = 0; i < buildings.size(); i++) {
-            if (buildings.get(i).getPrice(1) <= mainCookie.currentCookies) {
-                SaxionApp.setFill(Color.green);
-            } else {
-                SaxionApp.setFill(Color.red);
-            }
+            //if (buildings.get(i).getPrice(1) <= mainCookie.currentCookies) {
+            //    SaxionApp.setFill(Color.green);
+            //} else {
+            //    SaxionApp.setFill(Color.red);
+            //}
             if (i % 2 == 0) {
-                xPos = SaxionApp.getWidth() / 2 - 200;
-                yPos += 60;
+                xPos = SaxionApp.getWidth() / 2 - 225;
+                yPos += 70;
             } else {
                 xPos = SaxionApp.getWidth() / 2 + 10;
             }
-            SaxionApp.drawRectangle(xPos, yPos, 200, 50);
-            SaxionApp.drawText(buildings.get(i).name, xPos, yPos, 25);
-            SaxionApp.drawText(String.format("%15s", buildings.get(i).amount), xPos + 60, yPos + 10, 30);
+            if (buildings.get(i).getPrice(1) <= mainCookie.currentCookies) {
+                emptybutton = "Assets/emptybutton.png";
+            } else {
+                emptybutton = "Assets/inactivebutton.png";
+            }
+            //SaxionApp.drawRectangle(xPos, yPos, 200, 50);
+            SaxionApp.drawImage(emptybutton,xPos, yPos, 225, 60);
+            SaxionApp.drawImage(buildings.get(i).fileName,xPos+7,yPos+7,46,46);
+            SaxionApp.drawText(buildings.get(i).name, xPos+65, yPos+20, 25);
 
+            SaxionApp.drawText(String.format("%15s", buildings.get(i).amount), xPos + 85, yPos + 18, 30);
         }
     }
 
     @Override
     public void mouseEvent(MouseEvent mouseEvent) {
-        //SaveFile data = new SaveFile();
-        //data.buildings = buildings;
-        //data.mainCookie = mainCookie;
-        //data.SaveData(data);
-
-        //Loaddata, uncomment for demo
-        //SaveFile saveData = new SaveFile().LoadData();
-        //mainCookie = saveData.mainCookie;
-        //buildings = saveData.buildings;
+        System.out.println("X: "+ mouseEvent.getX()+ " Y: " + mouseEvent.getY());
         switch (currentScreen) {
             case Game -> {
                 if (mouseEvent.isMouseDown() & mouseEvent.isLeftMouseButton()) {
                     if (mainCookie.boundingCircle.contains(mouseEvent.getX(), mouseEvent.getY())) {
                         mainCookie.currentCookies += mainCookie.cookiesPerClick;
                         mainCookie.clickCount += 1;
+                        clicksInMinute.add(stopwatch);
                         text.add(new Text(mouseEvent.getX(), mouseEvent.getY(), "+" + FormatAmount(mainCookie.cookiesPerClick)));
                     }
-                    if (new Rectangle(SaxionApp.getWidth() - 100, SaxionApp.getHeight() - 50, 90, 40).contains(mouseEvent.getX(), mouseEvent.getY())) {
+                    //mainscreen buttons
+                    if (new Rectangle(564,584,153,32).contains(mouseEvent.getX(), mouseEvent.getY())) {
+                        //shop button
                         currentScreen = Screen.Shop;
                     }
-                    if (new Ellipse2D.Double(goldenCookie.x - goldenCookie.size / 2, goldenCookie.y - goldenCookie.size / 2, goldenCookie.size, goldenCookie.size).contains(mouseEvent.getX(), mouseEvent.getY())) {
-                        if (goldenCookie.active) {
+                    if (new Rectangle(564,628,153,35).contains(mouseEvent.getX(), mouseEvent.getY())) {
+                        //achievement button
+                        currentScreen = Screen.Achievements;
+                    }
+                    if (new Rectangle(564,674,153,35).contains(mouseEvent.getX(), mouseEvent.getY())) {
+                        //options button
+                        currentScreen = Screen.Settings;
+                    }
+                    if (goldenCookie.active) {
+                        if (new Ellipse2D.Double(goldenCookie.x - goldenCookie.size / 2, goldenCookie.y - goldenCookie.size / 2, goldenCookie.size, goldenCookie.size).contains(mouseEvent.getX(), mouseEvent.getY())) {
                             goldenCookie.active = false;
                             int goldCookieValue = (int) (mainCookie.currentCookies * 0.15 + 13);
                             goldCookieValue += mainCookie.cookiesPerSecond * 900 + 13;
@@ -336,6 +363,12 @@ public class BasicGame implements GameLoop {
                     updateProduction();
                     currentScreen = Screen.Game;
                 }
+            }
+        }
+        if (currentScreen == Screen.Shop | currentScreen == Screen.Achievements | currentScreen == Screen.Settings){
+            //exit button
+            if (new Rectangle(580,665,140,55).contains(mouseEvent.getX(),mouseEvent.getY())){
+                currentScreen = Screen.Game;
             }
         }
     }
